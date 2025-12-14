@@ -1,0 +1,304 @@
+✓ Business database created with sample data
+
+
+[1m> Entering new SQLDatabaseChain chain...[0m
+What was the churn rate or number of churned customers last month compared to previous months? Show monthly churn trends for the last 6 months.
+SQLQuery:
+
+[1m> Entering new SQLDatabaseChain chain...[0m
+What were the churn reasons for customers who churned last month? Break down by churn_reason.
+SQLQuery:
+
+[1m> Entering new SQLDatabaseChain chain...[0m
+What were the characteristics of customers who churned last month - their plan types, company sizes, industries, and how long they had been customers?
+SQLQuery:[32;1m[1;3mI'll analyze the monthly churn trends for the last 6 months.
+
+SQLQuery: SELECT 
+    strftime('%Y-%m', "churn_date") as month,
+    COUNT(DISTINCT "customer_id") as churned_customers
+FROM churn_events
+WHERE "churn_date" >= date('now', '-6 months')
+    AND "churn_date" < date('now')
+GROUP BY strftime('%Y-%m', "churn_date")
+ORDER BY month DESC
+LIMIT 6[0m
+SQLResult: [33;1m[1;3m[('2025-12', 10), ('2025-11', 10)][0m
+Answer:[32;1m[1;3mI need to find churn reasons for customers who churned last month and break them down by reason.
+
+First, let me determine what "last month" means. Since we need to look at the previous month relative to today, I'll need to filter churn_date accordingly.
+
+SQLQuery: SELECT "churn_reason", COUNT(*) as churn_count
+FROM "churn_events"
+WHERE "churn_date" >= date('now', 'start of month', '-1 month')
+AND "churn_date" < date('now', 'start of month')
+GROUP BY "churn_reason"
+ORDER BY churn_count DESC[0m
+SQLResult: [33;1m[1;3m[('No longer needed', 3), ('Missing features', 3), ('Switching to competitor', 2), ('Price too high', 1), ('Poor support', 1)][0m
+Answer:[32;1m[1;3mI need to find customers who churned last month and gather their characteristics including plan types, company sizes, industries, and tenure.
+
+SQLQuery:
+```sql
+SELECT 
+    c."name",
+    c."industry",
+    c."company_size",
+    s."plan_type",
+    ce."churn_date",
+    ce."churn_reason",
+    ROUND(JULIANDAY(ce."churn_date") - JULIANDAY(c."signup_date")) AS days_as_customer
+FROM churn_events ce
+JOIN customers c ON ce."customer_id" = c."customer_id"
+JOIN subscriptions s ON ce."customer_id" = s."customer_id"
+WHERE ce."churn_date" >= date('now', 'start of month', '-1 month')
+    AND ce."churn_date" < date('now', 'start of month')
+ORDER BY ce."churn_date" DESC
+```[0m[32;1m[1;3mBased on the churn data from the last 6 months, here are the monthly churn trends:
+
+**Monthly Churn Trends (Last 6 Months):**
+- **December 2025**: 10 churned customers
+- **November 2025**: 10 churned customers
+
+**Key Findings:**
+- Only 2 months show churn activity in the last 6 months (November and December 2025)
+- The churn rate has remained stable at 10 customers per month for these two months
+- No churn was recorded in the other 4 months of the 6-month period
+- Total churned customers in the last 6 months: **20 customers**
+
+The data shows consistent churn in the most recent two months, with no improvement or deterioration between November and December 2025.[0m
+[1m> Finished chain.[0m
+[32;1m[1;3mBased on the churn events from last month, here's the breakdown by churn reason:
+
+1. **No longer needed** - 3 customers
+2. **Missing features** - 3 customers
+3. **Switching to competitor** - 2 customers
+4. **Price too high** - 1 customer
+5. **Poor support** - 1 customer
+
+The top two reasons for churn last month were customers no longer needing the service and missing features (tied at 3 customers each), followed by customers switching to a competitor (2 customers). Price and support issues each accounted for 1 customer churn.[0m
+[1m> Finished chain.[0m
+
+
+[1m> Entering new SQLDatabaseChain chain...[0m
+Show me the plan types and industries of customers who churned last month
+SQLQuery:
+
+[1m> Entering new SQLDatabaseChain chain...[0m
+Show me the monthly churn count for the last 6 months
+SQLQuery:
+
+[1m> Entering new SQLDatabaseChain chain...[0m
+What are the churn reasons for customers who churned last month
+SQLQuery:[32;1m[1;3mI need to find the monthly churn count for the last 6 months from the churn_events table.
+
+```sql
+SELECT 
+    strftime('%Y-%m', "churn_date") AS month,
+    COUNT(*) AS churn_count
+FROM churn_events
+WHERE "churn_date" >= date('now', '-6 months')
+GROUP BY strftime('%Y-%m', "churn_date")
+ORDER BY month DESC
+LIMIT 5
+```[0m[32;1m[1;3mI need to find the churn reasons for customers who churned last month. Let me break this down:
+
+1. I need to identify what "last month" means relative to today
+2. Query the churn_events table for churn reasons where the churn_date falls in last month
+
+SQLQuery: SELECT "churn_reason", COUNT(*) as count
+FROM "churn_events"
+WHERE strftime('%Y-%m', "churn_date") = strftime('%Y-%m', date('now', '-1 month'))
+GROUP BY "churn_reason"
+ORDER BY count DESC
+LIMIT 5[0m
+SQLResult: [33;1m[1;3m[('No longer needed', 3), ('Missing features', 3), ('Switching to competitor', 2), ('Price too high', 1), ('Poor support', 1)][0m
+Answer:[32;1m[1;3mI need to find customers who churned last month, and then get their plan types and industries.
+
+First, let me determine what "last month" means. Since we need to find churns from last month, I'll need to filter churn_events by churn_date.
+
+SQLQuery: SELECT DISTINCT s."plan_type", c."industry"
+FROM churn_events ce
+JOIN customers c ON ce."customer_id" = c."customer_id"
+JOIN subscriptions s ON ce."customer_id" = s."customer_id"
+WHERE ce."churn_date" >= date('now', 'start of month', '-1 month')
+AND ce."churn_date" < date('now', 'start of month')
+LIMIT 5[0m
+SQLResult: [33;1m[1;3m[('Pro', 'Finance'), ('Pro', 'Technology'), ('Enterprise', 'Healthcare'), ('Enterprise', 'Finance'), ('Basic', 'Technology')][0m
+Answer:[32;1m[1;3mBased on the data, here are the churn reasons for customers who churned last month:
+
+1. **No longer needed** - 3 customers
+2. **Missing features** - 3 customers
+3. **Switching to competitor** - 2 customers
+4. **Price too high** - 1 customer
+5. **Poor support** - 1 customer
+
+The most common reasons for churn last month were customers no longer needing the service and missing features (tied at 3 customers each), followed by customers switching to a competitor (2 customers).[0m
+[1m> Finished chain.[0m
+[32;1m[1;3mBased on the query results, customers who churned last month had the following plan types and industries:
+
+1. **Pro plan** - Finance industry
+2. **Pro plan** - Technology industry
+3. **Enterprise plan** - Healthcare industry
+4. **Enterprise plan** - Finance industry
+5. **Basic plan** - Technology industry
+
+The churned customers were spread across three plan types (Pro, Enterprise, and Basic) and three industries (Finance, Technology, and Healthcare).[0m
+[1m> Finished chain.[0m
+Traceback (most recent call last):
+  File "/Users/jordandominguez/Documents/Documents/LangChainPractice/data_analyst.py", line 303, in <module>
+    response = agent.invoke(
+        {"messages": [{"role": "user", "content": test_queries[0]}]},
+        config=config,
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langgraph/pregel/main.py", line 3068, in invoke
+    for chunk in self.stream(
+                 ~~~~~~~~~~~^
+        input,
+        ^^^^^^
+    ...<10 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    ):
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langgraph/pregel/main.py", line 2643, in stream
+    for _ in runner.tick(
+             ~~~~~~~~~~~^
+        [t for t in loop.tasks.values() if not t.writes],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        schedule_task=loop.accept_push,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ):
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langgraph/pregel/_runner.py", line 167, in tick
+    run_with_retry(
+    ~~~~~~~~~~~~~~^
+        t,
+        ^^
+    ...<10 lines>...
+        },
+        ^^
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langgraph/pregel/_retry.py", line 42, in run_with_retry
+    return task.proc.invoke(task.input, config)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langgraph/_internal/_runnable.py", line 656, in invoke
+    input = context.run(step.invoke, input, config, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langgraph/_internal/_runnable.py", line 400, in invoke
+    ret = self.func(*args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langchain/agents/factory.py", line 1131, in model_node
+    response = _execute_model_sync(request)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langchain/agents/factory.py", line 1102, in _execute_model_sync
+    output = model_.invoke(messages)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langchain_core/runnables/base.py", line 5548, in invoke
+    return self.bound.invoke(
+           ~~~~~~~~~~~~~~~~~^
+        input,
+        ^^^^^^
+        self._merge_configs(config),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        **{**self.kwargs, **kwargs},
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langchain_core/language_models/chat_models.py", line 398, in invoke
+    self.generate_prompt(
+    ~~~~~~~~~~~~~~~~~~~~^
+        [self._convert_input(input)],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    ).generations[0][0],
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langchain_core/language_models/chat_models.py", line 1117, in generate_prompt
+    return self.generate(prompt_messages, stop=stop, callbacks=callbacks, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langchain_core/language_models/chat_models.py", line 927, in generate
+    self._generate_with_cache(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        m,
+        ^^
+    ...<2 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langchain_core/language_models/chat_models.py", line 1221, in _generate_with_cache
+    result = self._generate(
+        messages, stop=stop, run_manager=run_manager, **kwargs
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langchain_anthropic/chat_models.py", line 1319, in _generate
+    data = self._create(payload)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/langchain_anthropic/chat_models.py", line 1175, in _create
+    return self._client.messages.create(**payload)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/anthropic/_utils/_utils.py", line 282, in wrapper
+    return func(*args, **kwargs)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/anthropic/resources/messages/messages.py", line 930, in create
+    return self._post(
+           ~~~~~~~~~~^
+        "/v1/messages",
+        ^^^^^^^^^^^^^^^
+    ...<26 lines>...
+        stream_cls=Stream[RawMessageStreamEvent],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/anthropic/_base_client.py", line 1326, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/anthropic/_base_client.py", line 1049, in request
+    response = self._client.send(
+        request,
+        stream=stream or self._should_stream_response_body(request=request),
+        **kwargs,
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+        pool_request.request
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpcore/_sync/connection.py", line 103, in handle_request
+    return self._connection.handle_request(request)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 136, in handle_request
+    raise exc
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 106, in handle_request
+    ) = self._receive_response_headers(**kwargs)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 177, in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 217, in _receive_event
+    data = self._network_stream.read(
+        self.READ_NUM_BYTES, timeout=timeout
+    )
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/site-packages/httpcore/_backends/sync.py", line 128, in read
+    return self._sock.recv(max_bytes)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/ssl.py", line 1285, in recv
+    return self.read(buflen)
+           ~~~~~~~~~^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/ssl.py", line 1140, in read
+    return self._sslobj.read(len)
+           ~~~~~~~~~~~~~~~~~^^^^^
+KeyboardInterrupt
