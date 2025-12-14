@@ -230,7 +230,7 @@ def query_database(question: str) -> str:
 
         # Validate it's a SELECT query
         if not query.strip().upper().startswith('SELECT'):
-            return "⚠️ SAFETY CHECK FAILED: Only SELECT queries are allowed. Query was rejected."
+            return "SAFETY CHECK FAILED. Only SELECT queries are allowed."
 
         return f"Query executed:\n{query}\n\nAnalysis:\n{answer}"
     except Exception as e:
@@ -296,7 +296,7 @@ config = {"configurable": {"thread_id": "1"}}
 
 # Example queries to test
 test_queries = [
-    "How many new industries did we get into in the past year?",
+    "Why did churn increase last month?",
 ]
 
 # Run first query
