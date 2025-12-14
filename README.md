@@ -1,54 +1,102 @@
-# CLAUDE.md
+# LangChain Data Analyst
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+A SQL data analyst agent built with LangChain and Claude that helps business stakeholders understand their data through natural language queries.
 
-## Project Overview
+## Overview
 
-This is a LangChain practice repository for experimenting with LangChain agents, tools, and SQL database interactions. The project uses LangChain's agent framework with Claude Sonnet 4.5 as the underlying model.
+This project demonstrates an AI-powered data analyst that can:
 
-## Architecture
+- Answer business questions in natural language
+- Generate and execute SQL queries automatically
+- Analyze subscription, customer, and churn data
+- Provide insights in plain English for non-technical audiences
 
-The codebase follows a single-file agent pattern with these key components:
+## Features
 
-- **System Prompt**: Defines agent behavior as an analytical professional that translates natural language to SQL queries and returns plain English responses
-- **Database Chain**: Placeholder for SQLDatabaseChain integration (currently empty)
-- **LangChain Agent**: Uses `create_agent` with InMemorySaver checkpointer for conversation state management
-- **Model**: Claude Sonnet 4.5 (`claude-sonnet-4-5-20250929`) via `init_chat_model`
-- **Structured Output**: Uses `ToolStrategy` with a `ResponseFormat` dataclass to ensure consistent response formatting
+- **Natural Language Queries**: Ask questions about your business data in plain English
+- **Automated SQL Generation**: Claude generates appropriate SQL queries based on your questions
+- **Business Intelligence**: Analyzes customer behavior, subscription metrics, and churn patterns
+- **Safety Checks**: Validates queries are read-only (SELECT statements only)
+- **Sample Database**: Includes a pre-populated SQLite database with business data
 
-The agent is designed to be conversational with thread-based memory via the checkpointer.
+## Database Schema
 
-## Development Commands
+The project includes four tables:
 
-### Running the Agent
+- **customers**: Customer information (name, email, signup date, industry, company size)
+- **subscriptions**: Subscription details (plan type, MRR, status, dates)
+- **usage_metrics**: Daily usage data (logins, feature usage, support tickets)
+- **churn_events**: Churn tracking (dates and reasons)
+
+## Setup
+
+1. Clone the repository:
 
 ```bash
-python3 weather.py
+git clone https://github.com/jordand2003/LangChain-Data-Analyst.git
+cd LangChain-Data-Analyst
 ```
 
-### Environment Setup
+2. Install dependencies:
 
-The project requires Python 3.13+ and uses `python-dotenv` for environment variable management. API credentials are stored in `.env`:
+```bash
+pip install python-dotenv langchain-anthropic langchain-core langchain-experimental langgraph langchain-community
+```
 
-- `ANTHROPIC_API_KEY`: Required for Claude API access
+3. Create a `.env` file with your Anthropic API key:
 
-### Dependencies
+```
+ANTHROPIC_API_KEY=your_api_key_here
+```
+
+4. Run the analyst:
+
+```bash
+python data_analyst.py
+```
+
+## Usage Example
+
+The script includes a sample query:
+
+```python
+"Why did churn increase last month?"
+```
+
+The agent will:
+
+1. Analyze the question
+2. Query the database tables
+3. Generate SQL to find patterns
+4. Provide a detailed analysis in plain English
+
+## Dependencies
 
 Key packages (install via pip):
+
 - `langchain-anthropic` - Claude model integration
 - `langchain-core` - Core LangChain functionality
 - `langchain-experimental` - SQL database features
 - `langgraph` - Graph-based agent orchestration with checkpointers
 - `python-dotenv` - Environment variable loading
 
-## Current State
+## Project Structure
 
-The `weather.py` file is a work-in-progress with:
-- Empty `SQLDatabaseChain` configuration (line 29-31)
-- Empty tools list in agent creation (line 55)
-- Example invocation asking "what is the weather outside?" (line 66)
+```
+.
+├── data_analyst.py      # Main agent script
+├── business_data.db     # SQLite database with sample data
+├── .env                 # API keys (not tracked in git)
+├── .gitignore          # Git ignore rules
+└── README.md           # This file
+```
 
-The agent structure is in place but needs:
-1. SQL database connection configuration in the chain
-2. Tools defined and passed to the agent
-3. Integration between the database chain and agent tools
+## Security
+
+The `.env` file containing your API key is excluded from version control via `.gitignore` to keep your credentials secure.
+
+Agent can only execute read only queries (SELECT statements) to prevent from SQL injection attacks.
+
+---
+
+_README created by Claude Code_
